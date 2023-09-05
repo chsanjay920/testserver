@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="http://localhost:8000/socket.io/socket.io.js"></script>
+
+</head>
+<body>
+    <button type="button" onclick="callapi()">call api</button>
+    <button type="button" onclick="emitevent()">emit event</button>
+
+</body>
+<script>
+    function callapi()
+    {
+        fetch("http://localhost:3000/sayhai").then(response=>response.json()).then(data=>{
+            console.log(data);
+        })
+    }
+    const socket = io('http://localhost:8000');
+    function emitevent()
+    {
+        socket.emit("clientconnect",{data:"client connected"});
+    }
+</script>
+</html>
