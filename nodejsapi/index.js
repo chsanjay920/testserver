@@ -1,38 +1,46 @@
 const express = require('express');
-const cors = require('cors');
+const http = require('http');
+const socketIo = require('socket.io');
+const cors = require('cors'); // Import the CORS middleware
+
 const app = express();
-const port = 3000;
+const server = http.createServer(app);
 
-
-const io = require('socket.io')(8000, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"],
-        allowedHeaders: ["my-custom-header"],
-        credentials: true
-    }
-});
-
-io.on('connection', socket => {
-    socket.on('clientconnect', data => {
-        console.log("clientConnected", data);
-    });
-});
-
-const corsOptions = {
+// Enable CORS for the Socket.io server
+const io = socketIo(server, {
+  cors: {
     origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-};
-const corsMiddleware = cors(corsOptions);
-app.use(corsMiddleware);
+    methods: ['GET', 'POST'], // Add the HTTP methods you need
+  },
+});
 
+const PORT = process.env.PORT || 8000;
+
+// Enable CORS for Express
+app.use(cors());
 app.get('/sayhai', (req, res) => {
     res.send({
         data: "sanjay"
     });
 });
 
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+// Rest of your server code...
+
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+
+// Socket.io
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  socket.on('chatmessage', (msg) => {
+    console.log(`Message: ${msg}`);
+    io.emit('chat message', msg); // Broadcast the message to all connected clients
+  });
+
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+  });
 });
